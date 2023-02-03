@@ -2,15 +2,17 @@
 
 Pre-requisites: System Programming in C/C++
 
-**Lecture Notes**     [1](./01-Introduction/README.md)
+**Lecture Notes**
 
-**Exercises**     [1](./exercises/Ex1.pdf)
+[1](./01-Introduction)
+
+**Exercises**
+
+[1](./exercises/Ex1.pdf)
 
 ## Description
 
 As computers are embedded in everyday life, protection against the criminal or unauthorized use of electronic data is essential and measures must be taken to achieve this. The module will introduce a range of topics in the theory and practice of computer security, including attacks, vulnerabilities and defences. Cloud and Web services will be used as a motivating example for the importance of security.
-
-
 
 ## Outcomes
 
@@ -22,8 +24,6 @@ On successful completion of this module, the student should be able to:
 4. Demonstrate an understanding of the threats to data sent on the network
 5. Identify risks and use techniques to eliminate or mitigate them
 
-
-
 ## Module Outline
 
 - [ ] Cryptography
@@ -32,8 +32,6 @@ On successful completion of this module, the student should be able to:
 - [ ] Security Protocols
 - [ ] Web Systems and Attacks
 - [ ] Other Common Attacks and Defenses
-
-
 
 ## References
 
