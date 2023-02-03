@@ -1,4 +1,4 @@
-## Security and Networks
+## 🔐 Security and Networks
 
 Pre-requisites: System Programming in C/C++
 
@@ -10,11 +10,11 @@ Pre-requisites: System Programming in C/C++
 
 [1](./exercises/Ex1.pdf)
 
-## Description
+## 🕊 Description
 
 As computers are embedded in everyday life, protection against the criminal or unauthorized use of electronic data is essential and measures must be taken to achieve this. The module will introduce a range of topics in the theory and practice of computer security, including attacks, vulnerabilities and defences. Cloud and Web services will be used as a motivating example for the importance of security.
 
-## Outcomes
+## 🎯 Outcomes
 
 On successful completion of this module, the student should be able to:
 
@@ -24,7 +24,7 @@ On successful completion of this module, the student should be able to:
 4. Demonstrate an understanding of the threats to data sent on the network
 5. Identify risks and use techniques to eliminate or mitigate them
 
-## Module Outline
+## 📌 Module Outline
 
 - [ ] Cryptography
 - [ ] Access Control
@@ -33,7 +33,7 @@ On successful completion of this module, the student should be able to:
 - [ ] Web Systems and Attacks
 - [ ] Other Common Attacks and Defenses
 
-## References
+## 📙 References
 
 [**University of Birmingham** Module Description](https://www.cs.bham.ac.uk/internal/modules/2019/06-30195/mds)
 
