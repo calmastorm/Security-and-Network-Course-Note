@@ -100,5 +100,15 @@ Could be anyone and Everyone.
 Here are some exercises, try them!
 
 1. Make 400 directories with names student1, student2, ... student400.
+
+   `mkdir student{1..400}`
+
 2. Create a directory in the parent folder.
+
+   `cd ..`
+
+   `mkdir temp`
+
 3. Create a blank pdf file with 10 pages.
+
+   
