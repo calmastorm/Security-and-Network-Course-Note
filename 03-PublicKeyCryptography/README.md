@@ -87,6 +87,8 @@ Widely used in internet protocol like TLS, PKI.
 
 ### 3.1 Textbook RSA scheme
 
+被称为裸加密
+
 Three Algorithms (Gen, Enc, Dec)
 
 - **Gen**: on input a <u>security parameter 𝜆</u>.
@@ -103,7 +105,7 @@ Three Algorithms (Gen, Enc, Dec)
 
   Public key 𝑃𝐾 = (𝑒, 𝑁).   The private key 𝑆𝐾 = 𝑒, 𝑑, 𝑁
 
-  Example:
+  **Example**:
 
   ![eg-gen](eg-gen.png)
 
@@ -115,6 +117,82 @@ Three Algorithms (Gen, Enc, Dec)
 
   𝑚=𝑐<sup>d</sup> (𝑚𝑜𝑑𝑁)
 
-  Examples:
+  **Examples:**
 
   ![eg-encdec](eg-encdec.png)
+
+## 4. Digital Signatures
+
+**Objectives**
+
+1. Features of hand-written signatures in Digital World 手写签名在数据世界的特征
+2. Ensure hardness of forgery 确保难以被伪造
+
+> Explanation: When I want to send you something, I want to prove that it was me that sent it. To do that, I am going to use my private key to sign a digital signature. On your side, you are going to verify that signature, and verify that it was actually me that encrypted it.
+
+### 4.1 Hand-written Signatures
+
+- **Function**: bind a statement/message to its authors.
+- Verification is public. (Against a prior authenticated one)
+
+- **Properties**:
+  - Correctness: A correct signature should always be verified true.
+  - Security: Hard to forge.
+
+[What are Digital Signatures? - Computerphile from YouTube](https://www.youtube.com/watch?v=s22eJ1eVLTU)
+
+### 4.2 Signature Schemes
+
+![Correctness](correctness.png)
+
+![Unforgeability](unforgeability.png)
+
+> Gen -> 生成了公钥和私钥。
+>
+> Sign -> 使用明文（文件/数据）生成 &alpha; (这是什么？)。
+>
+> Verify -> 使用明文和x（这是什么？）进行验证，如果该消息未请求签名，则视为伪造。
+
+### 4.3 Signature Scheme Designs: RSA Full Domain Hash
+
+- **Public Functions** A hash function H : {0, 1}<sup>\*</sup> --> Z<sub>N</sub><sup>*</sup>
+
+- **Keygen** Run RSA.Keygen. *pk = (e, N), sk = (d, N).*
+- **Sign** **Input** *sk, M.* **Output** *σ = RSA.Dec(sk, H(M)) = H(M)<sup>d</sup> mod N*
+
+- **Verify** **Input** *pk,M,σ. If RSA.Enc(pk, σ) = H(M)* **Output** accept, else reject
+
+- if σ<sup>e</sup> mod N = H(M), **output** accept, else reject.
+
+> A hash function takes strings of arbitrary length as input and produces a fixed length output. For cryptographic hash functions, given a *z*, it is very expensive to find x such that *H(x) = z*.
+> 哈希函数无论输入的字符串有多长，它的输出都一样长，因此难以根据输出破解输入。
+
+## 5. Public-Key Cryptography in Practice
+
+**Saving a Key**
+
+Can we read and write the bytes of a key to a file? This is a bad idea.
+
+We want to
+
+1. protect read access to private keys
+2. make sure the publics ones are read
+
+### 5.1 KeyStores and Java keytool
+
+- `KeyStore` provides password protected storage for keys.
+- Most Java programs use existing keys rather than create keys themselves.
+- The keytool command can be used to generate keys outside Java.
+
+**KeyStore**
+
+A `KeyStore` holds password protected private keys and public keys as certificates.
+
+```
+// Make keystores using the keytool e.g.
+keytool -genkey -keyalg RSA
+				-keypass password  -alias mykey
+				-storepass storepass
+				-keystore myKeyStore
+```
+
