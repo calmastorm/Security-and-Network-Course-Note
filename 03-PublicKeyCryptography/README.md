@@ -92,10 +92,15 @@ Three Algorithms (Gen, Enc, Dec)
 - **Gen**: on input a <u>security parameter 𝜆</u>.
 
   Generate two distinct primes 𝑝 and 𝑞 of same bit-size 𝜆
+
   Compute 𝑁 = 𝑝𝑞 and 𝜙(𝑁) = ( 𝑝 − 1 )( 𝑞 − 1 )
+
   Choose at random an integer 𝑒 (1 < 𝑒 < 𝜙(𝑁)) such that gcd( 𝑒, 𝜙(𝑁) ) = 1
+
   Let ℤ<sub>N</sub><sup>*</sup>= {x | 0 < x <N and gcd(x, N)=1}
+
   Compute 𝑑 such that 𝑒 · 𝑑 ≡ 1 ( 𝑚𝑜𝑑 𝜙(𝑁) )
+
   Public key 𝑃𝐾 = (𝑒, 𝑁).   The private key 𝑆𝐾 = 𝑒, 𝑑, 𝑁
 
   Example:
