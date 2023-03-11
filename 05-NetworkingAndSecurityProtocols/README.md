@@ -329,17 +329,17 @@ A protocol provides **Mutual Belief** in a key K for Alice with respect to Bob i
 
 >Mutual Belief in Key
 >
->|----- Good Key
+><----- Good Key
 >
->​			|----- Fresh Key
+>​			<<<----- Fresh Key
 >
->​			|----- Key Exclusivity
+>​			<<<----- Key Exclusivity
 >
->|----- Entity Authentication
+><----- Entity Authentication
 >
->​			|----- Far-end Operative
+>​			<<<----- Far-end Operative
 >
->​			|----- Once Authentication
+>​			<<<----- Once Authentication
 
 The main-in-the-middle attack against NH Public Key Protocol mentioned above:
 
