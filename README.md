@@ -4,7 +4,7 @@ Pre-requisites: System Programming in C/C++
 
 **Lecture Notes**
 
-[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./NetworkingAndSecurityProtocols)
+[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./05-NetworkingAndSecurityProtocols)
 
 **Exercises**
 
