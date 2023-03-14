@@ -8,7 +8,7 @@ Pre-requisites: System Programming in C/C++
 
 **Exercises**
 
-[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)
+[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)
 
 ## 🕊 Description
 
