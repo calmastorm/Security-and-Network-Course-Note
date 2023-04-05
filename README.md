@@ -4,11 +4,11 @@ Pre-requisites: System Programming in C/C++
 
 **Lecture Notes**
 
-[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./05-NetworkingAndSecurityProtocols)	[6](06-TLSAndTor)
+[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./05-NetworkingAndSecurityProtocols)	[6](./06-TLSAndTor)	[7](./07-AutomatedProtocolVerification)
 
 **Exercises**
 
-[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)
+[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)	[4](./exercises/Ex4.pdf)
 
 ## 🕊 Description
 
