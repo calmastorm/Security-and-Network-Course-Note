@@ -4,11 +4,11 @@ Pre-requisites: System Programming in C/C++
 
 **Lecture Notes**
 
-[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./05-NetworkingAndSecurityProtocols)	[6](./06-TLSAndTor)	[7](./07-AutomatedProtocolVerification)	[8](./08-WebAttack)	[9](./09-ReverseEngineering)
+[1](./01-Introduction)	[2](./02-SymmetricKeyCryptography)	[3](./03-PublicKeyCryptography)	[4](./04-HashFunctionAndAccessControl)	[5](./05-NetworkingAndSecurityProtocols)	[6](./06-TLSAndTor)	[7](./07-AutomatedProtocolVerification)	[8](./08-WebAttack)	[9](./09-ReverseEngineering)	[10](./10-MemoryBasedAttacks)
 
 **Exercises**
 
-[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)	[4](./exercises/Ex4.pdf)
+[1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)	[4](./exercises/Ex4.pdf)	[5](./exercises/Ex5.pdf)
 
 ## 🕊 Description
 
@@ -26,12 +26,12 @@ On successful completion of this module, the student should be able to:
 
 ## 📌 Module Outline
 
-- [ ] Cryptography
-- [ ] Access Control
-- [ ] Introduction to Networking
-- [ ] Security Protocols
-- [ ] Web Systems and Attacks
-- [ ] Other Common Attacks and Defenses
+- [x] Cryptography
+- [x] Access Control
+- [x] Introduction to Networking
+- [x] Security Protocols
+- [x] Web Systems and Attacks
+- [x] Other Common Attacks and Defenses
 
 ## 📙 References
 
