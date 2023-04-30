@@ -10,6 +10,10 @@ Pre-requisites: System Programming in C/C++
 
 [1](./exercises/Ex1.pdf)	[2](./exercises/Ex2.pdf)	[3](./exercises/Ex3.pdf)	[4](./exercises/Ex4.pdf)	[5](./exercises/Ex5.pdf)
 
+**Past exams**
+
+[1](./pastExams/PastExamQuestions1.pdf)	[2](./pastExams/PastExamQuestions2.pdf)
+
 ## 🕊 Description
 
 As computers are embedded in everyday life, protection against the criminal or unauthorized use of electronic data is essential and measures must be taken to achieve this. The module will introduce a range of topics in the theory and practice of computer security, including attacks, vulnerabilities and defences. Cloud and Web services will be used as a motivating example for the importance of security.
