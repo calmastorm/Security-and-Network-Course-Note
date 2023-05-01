@@ -161,6 +161,10 @@ The key controls the exact nature of the permutations and substitutions
 
 ### 3.5.1 Advanced Encryption Standard (AES)
 
+> AES加密是一种对称加密方法，也就是说加密和解密是用同一个密钥。
+>
+> RSA加密则是非对称加密，使用公钥进行加密，并使用私钥进行解密。
+
 - It worked on blocks of 128-bits
 - It generates 10 round keys from a single 128-bit key
 - It uses one permutation *ShiftRows* and three substitutions *SubBytes, MixColumns, AddRoundKey*. 
@@ -171,7 +175,7 @@ The key controls the exact nature of the permutations and substitutions
 >
 > Decryption can be run on any block (not just encryptions).
 
-A block of 128 bits is represented by a 4x4-matrix where each element is a byte (8 bits)
+A block of **128 bits** is represented by a 4x4-matrix where each element is a byte (8 bits)
 
 ![AES-block](aes-block.png)
 
@@ -228,6 +232,8 @@ Triple DES, was a stop gap until AES, it takes three keys, k<sub>1</sub>, k<sub>
 
 If 3-DES having k1 = k2 = k3 then it is equivalent to DES.
 
+> 在3-DES中，Dk_2指使用了和第一和第三阶段不同密钥的第二解密阶段。
+
 ### 3.7 Padding
 
 - Block ciphers only work on fixed size blocks.
@@ -255,10 +261,14 @@ PKCS#5 and PKCS#7 are ways for padding.
 
 ### 3.8 Block Cipher Modes
 
+> 分块加密模式，需要结合上面的AES理解。下面的加密模式中（除了ECB），都需要一个Key和一个IV。IV用于增加随机性，Key用于真正的加密。而使用的Key的加密环节很有可能就是AES加密（包括substitution和permutation等方法）。
+
 1. **Electronic codebook mode** (ECB) 电码本 对图像加密效果较弱
 
    - Each block is encrypted individually, encrypted blocks are assembled in the same order as the plain text blocks.
    - If blocks are repeated in the plain text, this is revealed by the cipher text.
+
+   > ECB加密模式会把同一个Key重复地用于所有分块的加密，如果同一文件的两个分块的明文完全一样，那么加密出来的密文也完全一样。
 
 2. **Cipher Block chaining Mode** (CBC) 加密块链 对图像加密效果较好
 
@@ -270,7 +280,7 @@ PKCS#5 and PKCS#7 are ways for padding.
      - C2 = encrypt(B2 XOR C1)
      - Cn = encrypt(Bn XOR Cn-1)
 
-3. **CBC decrypt**
+3. **CBC decrypt **解密时使用key从C1开始XOR
 
    - Receive IV
 
@@ -294,11 +304,17 @@ PKCS#5 and PKCS#7 are ways for padding.
 
      Cn = Bn XOR encrypt(IV + n - 1)
 
+> 为什么我们每次都随机生成IV，但是仍然需要Key来对数据进行加密？不是多此一举吗？
+>
+> 并不是这样，IV虽然每次都是随机的，但是它是随着密文一起发送的，它的目的是为信息增加随机性，而不是真的为信息进行加密。Plaintext（A）先与IV（B）异或，得出中间值（C），然后再使用Key来对中间值（C）进行<u>加密</u>。这个Key是只有交流双方知道的，只有这样才能完全保证安全性。而上面提到的Key加密，本质上是使用Key为输入的一系列数学运算，包括substitution和permutation等等。
+
 ### 3.9 Probabilistic Encryption
 
 - Probabilistic encryption schemes use random elements to make every encryption different.
 - CBC with a random IV is a good way to make encryption probabilistic.
 - Using CBC and random IVs let me encrypt the same same, and with the same key, without an attacker realising.
+
+> 为加密增加概率，不确定性。尽管你在使用对称加密时，每次都是用相同的密钥，但是只要你使用了不同的IV，就可以有效增加随机性，攻击者很可能意识不到这一点。
 
 ### 3.10 Known Plain Text Attacks
 
