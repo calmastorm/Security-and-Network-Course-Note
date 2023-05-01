@@ -169,11 +169,11 @@ The key controls the exact nature of the permutations and substitutions
 - It generates 10 round keys from a single 128-bit key
 - It uses one permutation *ShiftRows* and three substitutions *SubBytes, MixColumns, AddRoundKey*. 
 
-> AES encryption with a particular key maps any 128-bit block to a 128-bit block (or 256)
+> 使用特定的密钥加密AES会把任何128-bit的分块映射到另一个128-bit或256-bit的分块
 >
-> AES decryption also maps any 128-bit block to a 128-bit block.
+> AES decryption also maps any 128-bit block to a 128-bit block. 解密也是一样的
 >
-> Decryption can be run on any block (not just encryptions).
+> Decryption can be run on any block (not just encryptions). 解密可以在任何分块上运行
 
 A block of **128 bits** is represented by a 4x4-matrix where each element is a byte (8 bits)
 
@@ -280,7 +280,7 @@ PKCS#5 and PKCS#7 are ways for padding.
      - C2 = encrypt(B2 XOR C1)
      - Cn = encrypt(Bn XOR Cn-1)
 
-3. **CBC decrypt **解密时使用key从C1开始XOR
+3. **CBC decrypt**解密时使用key从C1开始XOR
 
    - Receive IV
 
