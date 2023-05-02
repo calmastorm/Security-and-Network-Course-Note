@@ -39,9 +39,9 @@ If we use public and private key, then there are only 2000 keys are needed in to
 
 Take home: Encryption using **receiver's public key**, decryption using **receiver's private key**.
 
-> 这是非对称加密，B使用A得公钥的文件进行加密，发送给A。A使用自己的私钥对文件进行解密。
+> 这是非对称加密，B使用A的公钥对文件进行加密，发送给A。A使用自己的私钥对文件进行解密。
 >
-> 可是所有人都知道A得公钥，A怎么知道这条消息一定来源于B呢？<u>答案是使用独一无二的签名。</u>
+> 可是所有人都知道A的公钥，A怎么知道这条消息一定来源于B呢？<u>答案是使用独一无二的签名。</u>
 
 ### 1.3 Public Key authentication: Signatures
 
