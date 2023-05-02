@@ -85,6 +85,13 @@ Assumption: There is no polynomial time algorithm to compute *g<sup>ab</sup> mod
 
 ![Diffie Hellman Key Exchange](dhke.png)
 
+1. 选择一个质数p和一个原根g。
+2. 甲方选择一个随机数a，并计算 A = g^a mod p。<u>a为2到p-2之间的实数</u>
+3. 乙方选择一个随机数b，并计算 B = g^b mod p。<u>b为2到p-2之间的实数</u>
+4. 互相发送A和B
+5. 甲方计算 s = B^a mod p。
+6. 乙方计算 s = A^b mod p。
+
 >  <u>Diffie Hellman 本质上是一个密钥交换协议，主要目的是实现两个通信方之间共享一个密钥。</u>
 >
 > 而下面提到的RSA本质上是一种非对称加密。
@@ -230,3 +237,10 @@ keytool -genkey -keyalg RSA
 				-keystore myKeyStore
 ```
 
+## 6 题外话
+
+在 Diffie-Hellman 密钥交换协议中，通信双方的私钥和公钥是由 Diffie-Hellman 协议中的计算步骤直接生成的，而不是通过 RSA 或 PKI 生成的。
+
+具体来说，在 Diffie-Hellman 协议中，通信双方会先协商出两个共享的参数 g 和 p，然后各自生成一个私钥和公钥。私钥是一个随机数 x，公钥是 g^x mod p。然后双方会交换各自的公钥，然后再通过一系列计算得到最终的共享密钥。
+
+需要注意的是，Diffie-Hellman 协议中生成的公钥是临时的，而不是像 RSA 一样有一个固定的公钥对应一个固定的私钥。因此，Diffie-Hellman 协议并不需要使用 PKI 来管理密钥对。
