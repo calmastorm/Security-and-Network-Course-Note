@@ -33,32 +33,40 @@ But if everyone just sends a small packet of data, they can both use the line at
 > Socket = (IP: port) Socket 的含义就是两个应用程序通过一个双向的通信连接实现数据的交换，连接的一段就是一个socket。实现一个socket连接通信至少需要两个sockets，一个运行在服务端（插孔），一个运行在客户端（插头）。
 >
 > 套接字用于描述IP地址和端口，是一个通信链的句柄。应用程序通过套接字向网络发出请求或应答网络请求。注意的是套接字既不是程序也不是协议，只是操作系统提供给通信层的一组抽象API接口。
+>
+> 可以说，在TCP/IP协议中，套接字用于标识不同主机上的进程之间的通信。
 
 ## 1.4 Netcat
 
 - Netcat is a tool to make Internet connections
 
 - Syntax varies between OS. 不同的OS上使用不同语法
+
 - listen on 1337: nc -l 1337
+
+  > 这行指令可以让你监听本地的1337端口，当有人尝试给你的这个端口发信息时，你就会收到。
+
 - connect to machine 127.0.0.1 on port 1337:
   - nc 127.0.0.1 1337
+  
+  > 这一行是使用nc命令在本地主机（127.0.0.1）的1337端口上建立一个TCP连接。这个命令会尝试与目标主机上的1337端口建立连接，并且在连接建立后，它会打开一个终端，让你可以发送和接收数据。如果在目标主机上没有任何服务在监听1337端口，那么这个命令将会失败。
 
-> [Netcat tutorial](https://www.freebuf.com/sectool/243115.html) in Chinese
+教程：[Netcat tutorial](https://www.freebuf.com/sectool/243115.html) in Chinese
 
 ## 1.5 Nmap
 
-- Check if 1000 most common ports are open:
+- Check if 1000 most common ports are open: 查看开放的端口以及运行哪些服务。
   - nmap 127.0.0.1
-- Additionally send messages to ports to find out what the service is:
-  - Map -A 127.0.0.1
-- Scan all ports:
-  - Map -p- 127.0.0.1
+- Additionally send messages to ports to find out what the service is: 进行高级扫描并输出详细信息。
+  - nmap -A 127.0.0.1
+- Scan all ports: 扫描包括1到65535之间的所有端口。
+  - nmap -p- 127.0.0.1
 
 > 127.0.0.1 is a non-routable IP address that is defined as referring to the "local" computer. In other words, it is any computer you sit in front of right now.
 
 ## 1.6 The Internet Protocol Stack
 
-互联网协议栈
+互联网协议栈：协议栈中包含了好几种协议，用于不同的功能。
 
 - Internet communication uses a stack of protocols.
 - Each protocol uses the protocol below it to sent data.
@@ -79,30 +87,38 @@ But if everyone just sends a small packet of data, they can both use the line at
 
   - Assigns an IP address to a new machine (MAC address). Not stored long term.
 
-  > 用于集中对用户IP地址进行动态管理和配置
+  > DHCP用于集中对用户IP地址进行动态管理和配置
 
 - Address Resolution Protocol (ARP) 地址解析协议
 
   - Lets router find out which IP address is being used by which machine.
   - ARP spoofing lets one machine steal the IP address of another on the same network.
 
-  > 使得路由器可以找到哪台主机在用哪个IP地址
+  > ARP使得路由器可以找到哪台主机在用哪个IP地址
 
 ## 1.9 Wireshark
 
-- A network protocol analyzer: It records all internet traffic, so it can then be viewed and analysed. Wireshark 是一个网络封包分析软件，可以实时从网络接口捕获数据包中的数据。
+- A network protocol analyzer: It records all internet traffic, so it can then be viewed and analysed. 
+
+  > Wireshark 是一个网络封包分析软件，可以实时从网络接口捕获数据包中的数据。
+
 - Excellent for debugging protocols and network problems.
+
 - See also tcpdump, which writes packets directly to disk.
 
 > TCPDump 可以将网络中传送的数据包完全截获下来提供分析，它针对网络层、协议、主机、网络或端口的过滤。
 
 ## 1.10 Using the Stack to Send Data
 
+记住这个顺序：(**A**)pplication, (**T**)ransport, (**N**)etwork, (**L**)ink.
+
 ![senddata](senddata.png)
+
+**假设此时有一个Java进程在Application中运行，他与Transport连接的地方就是Sockets，Socket是应用程序于TCP/IP协议栈的接口**。
 
 从 Computer 1 发送数据到 Computer 2。首先数据经过 Transport 层，UDP 给每个数据包都添加了一个 header，其中包含发送和接收的端口，数据包的长度，以及 checksum 校验和。在 Network 层，为数据包打上 MAC 地址和 IP header，并拆分过大的数据。在 Link 层，打上该层的 header。
 
-## 1.11 "The Attack Owns the Network"
+## 1.11 "The Attacker Owns the Network"
 
 - The Internet was not designed with security in mind
 - Traffic may be monitored or altered
@@ -184,9 +200,13 @@ What can Bob be sure of after such a protocol run?
 
 ## 2.4 Key Establishment Protocol
 
+> 一种密码学协议，用于在通信的两个实体之间建立共享密钥。它主要通过交换消息来生成密钥，并且通常使用非对称加密算法，如Diffie-Hellman密钥交换协议或基于身份的密码学协议。
+>
+> 简而言之：先使用非对称密钥来沟通信息，然后生成对称密钥，最后使用对称密钥来加密信息以沟通。
+
 - This protocol was possible because A and b shared a key
 - Often, the principals need to set up a session key using a **Key Establishment Protocol**
-- To be sure they are communicating with the correct principal, they must either know each others public keys or use a **Trusted Third Party (TTP)**
+- To be sure they are communicating with the correct principal, they must either know each others public keys or use a **Trusted Third Party (TTP)** 为了确保他们是在和对方沟通而没有中间人，他们必须知道对方的公钥或启用一个被信任的第三方。
 
 ## 2.5 The Needham-Schroeder Public Key Protocol
 
@@ -215,19 +235,23 @@ N_a 和 N_b 这样就能被用于生成对称钥匙。
 Suppose A wants to make a connection with C
 
 1. **A --> C: E_C(N_a, A)** <u>A向C亮明身份（C得到N_a）</u>
-   1. C(A) --> B: E_B(N_a, A) <u>C把内容打包好发给B</u>
-   2. B --> C(A): E_A(N_a, N_b) <u>B要求验证身份</u>
+   1. C(A) --> B: E_B(N_a, A) <u>C把内容打包好发给B，并声称自己是A</u>
+   2. B --> C(A): E_A(N_a, N_b) <u>B要求验证身份，并使用A的公钥来加密消息</u>
 2. **C --> A: E_A(N_a, N_b)** <u>C把B发来的内容打包好发给A</u>
 3. **A --> C: E_C(N_b)** <u>A解开并发给C（C得到N_b）</u>
-   3. C(A) --> B: E_B(N_b) <u>C打包内容发给B B以为自己在和A说话</u>
+   3. C(A) --> B: E_B(N_b) <u>C打包内容发给B，B以为自己在和A说话</u>
+
+> 这个情况下，A会和B建立共享钥匙，但是A以为自己还在跟C沟通。由于C此时既知道Na也知道Nb，如果共享密钥是使用Na XOR Nb生成的话，那么C就可以完全窃听双方的对话了（或装成A跟B对话）。
 
 **Solution is simple:**
 
 1. A --> B: E_B(N_a, A)
-2. B --> A: E_A(N_a, N_b, **B**) 添加B的身份，如果A收到这个消息，就会发现自己在跟B沟通而不是C
+2. B --> A: E_A(N_a, N_b, **B**) <u>添加B的身份，如果A收到这个消息，就会发现自己在跟B沟通而不是C</u>
 3. A --> B: E_B(N_b)
 
 ## 2.7 Forward Secrecy
+
+> Forward secrecy 前向加密是指在密钥泄露的情况下，过去的通信内容仍然是安全的，这是一种保护通信安全的机制。
 
 1. A --> B: E_B(N_a, A)
 2. B --> A: E_A(N_a, N_b, B)
@@ -251,30 +275,40 @@ Protection against a government that can force people to give up their keys, or 
 
 ## 2.8 Station-to-Station Protocol
 
-> S_X(_) means signed by X
+> STS 密钥交换协议，旨在允许两个实体在没有先前交流过的情况下建立安全连接。它是由Diffie和Hellman在其经典密钥交换算法的基础上开发的，并增加了身份验证和数字签名。
+>
+> S_X(_) means signed by X <u>由X签名</u>
 
 这个例子中假设了双方都知道对方的public key
 
 1. A --> B: g^x <u>此处g^x的作用是否和Nonce相似？</u>
-2. B --> A: g^y, {S_B(g^y, g^x)}_g^(xy) <u>此处的signature是为了确保A和B在和对方对话</u>
-3. A --> B: {S_A(g^y, g^x)}_g^(xy)
+2. B --> A: g^y, {S_B(g^y, g^x)}_g^(xy) <u>中间人也可以看到g^x和g^y，所以此处的signature是为了确保A和B在和对方对话</u>
+3. A --> B: {S_A(g^y, g^x)}_g^(xy) 
 4. B --> A: {M}_g^(xy)
 
 - x, y, g^(xy) are not stored after the protocol run.
 - A and B's keys don't let the attacker read M.
-- **STS has forward secrecy**.
+- **STS has forward secrecy**. <u>简而言之，只要此次沟通时使用的钥匙无法被复原和保留，那么就满足了Forward secrecy。</u>
 
 ## 2.9 Certificates
 
-- What if Alice and Bob don't know each other's public keys to start off with?
-- Could meet face-to-face and set up keys or get a trusted third party (TTP) to sign their identity and public key: **a certificate**.
+- What if Alice and Bob don't know each other's public keys to start off with? <u>如果AB互相不知道公钥呢？</u>
+- Could meet face-to-face and set up keys or get a trusted third party (TTP) to sign their identity and public key: **a certificate**. <u>那就面对面交换公钥或者找一个可信任的第三方来做个证书。</u>
 
 **Full Station-to-Station Protocol**
 
 ![sts](sts.png)
 
 - The "full" STS protocol adds certificates for A and B.
-- These contain their public key signed by a TTP, so Alice and Bob don't hae to know each other's public key.
+- These contain their public key signed by a TTP, so Alice and Bob don't have to know each other's public key.
+
+> 证书中一般有这些信息：
+>
+> 1. 发行人：证书颁发机构的名称；
+> 2. 主体：证书拥有者的名称或其他标识信息；
+> 3. 有效期：证书的起始日期和结束日期；
+> 4. 公钥：证书拥有者的公钥；
+> 5. 数字签名：由证书颁发机构使用其私钥对证书的摘要进行数字签名，以确保证书的完整性和真实性。
 
 ## The Needham-schroeder key establishment protocol
 
@@ -343,10 +377,12 @@ A protocol provides **Mutual Belief** in a key K for Alice with respect to Bob i
 
 The main-in-the-middle attack against NH Public Key Protocol mentioned above:
 
-✅ Fresh Key
+![](goals.png)
 
-❌ Key Exclusivity
+✅ Fresh Key: <u>使用了Nonce或TTP，因此这是Fresh Key。</u>
 
-✅ Far-end Operative
+❌ Key Exclusivity: <u>AC的密钥是一样的，BC的密钥是一样的，因此没能达成Key Exclusivity。</u>
 
-❌ Once Authentication
+✅ Far-end Operative: <u>在2)中，B用A公钥加密了消息，也在3)中得到了用自己公钥加密的Nonce，因此B能确定A是active的。</u>
+
+❌ Once Authentication: <u>但是B无法确认A想和B沟通，因为B没有在2)中表明身份，这也同样是MITM发生的原因。</u>
