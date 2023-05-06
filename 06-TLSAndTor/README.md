@@ -9,22 +9,27 @@
 - It provides encrypted socket communication and authentication, based on public keys.
 - It may use a range of ciphers (RSA, DES, DH, ...)
 
-> 安全传输层协议用于在两个通信应用程序之间提供保密性和数据完整性。
+> <u>传输层安全协议</u>用于在两个通信应用程序之间提供保密性和数据完整性。
 >
-> - **加密：**隐藏从第三方传输的数据。
-> - **身份验证：**确保交换信息的各方是他们所声称的身份。
-> - **完整性：**验证数据未被伪造或篡改。
+> **加密：**隐藏从第三方传输的数据。
+>
+> **身份验证：**确保交换信息的各方是他们所声称的身份。
+>
+> **完整性：**验证数据未被伪造或篡改。
 
 ## 1.2 X.509 Standard for Certificates (证书的标准)
 
 - These certificates contains a subject, subject’s public key, issuer name, etc.
+
 - The issuer signs the hash of all the data
+
 - To check a certificate, I hash all the data and check the issuers public key.
+
+  <u>这里要对所有数据进行哈希是为了做数字签名，然后别人就可以用公钥来验证。如果摘要值正确则可以确定是由颁发者的私钥生成的。</u>
+
 - If I have the issuer's public key and trust the issuer, I can then be sure of the subject's public key.
 
 > X.509 是用于标准格式的公钥证书，是将加密密钥对与网站，个人或组织等身份安全地关联的数字文档。
-
-[什么是X.509证书?](https://www.ssl.com/zh-CN/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/%E4%BB%80%E4%B9%88%E6%98%AFx-509%E8%AF%81%E4%B9%A6/)
 
 [What is X.509 Certificate?](https://www.ssl.com/faqs/what-is-an-x-509-certificate/)
 
@@ -41,44 +46,48 @@
 
 ### 1.3.2 With TLS
 
-- The TLS layer runs between Application and Transport layer.
+- The TLS layer runs between Application and Transport layer. <u>传输安全协议在应用层和传输层之间运行</u>
 - The encryption is transparent to the Application layer.
 - Normal TCP and IP protocols etc. can be used at the low layers.
 
-> HTTPS是在 HTTP 协议基础上实施 TLS 加密，所有网站以及其他部分 web 服务都使用该协议。因此，任何使用 HTTPS 的网站都使用 TLS 加密。
+> HTTPS是在 HTTP 协议基础上实施 TLS 加密，所有网站以及其他部分 web 服务都使用该协议。因此，任何使用 HTTPS 的网站都使用 TLS 加密。换句话说，HTTP + TLS = HTTPS。
+>
+> 可以将TLS层视作一个在应用层和传输层之间独立的安全层：它为应用层提供安全性和保护机制，同时利用传输层协议进行数据的可靠传输。
 
 ## 1.4 How TLS works
 
-在该例子中，我们假设双方已经决定好使用某一cipher。
+**Example**
 
 1. C --> S: N_c 客户端发送Nonce至服务器
 2. S --> C: N_s, Cert_s 服务器发送新Nonce和证书至客户端 让客户端查看
-3. C --> S: E_s(K_seed), {Hash_1}_Kcs 客户端用证书中提到的方式加密Seed钥匙 并用创建的Kcs钥匙加密hash值
+3. C --> S: E_s(K_seed), {Hash_1}_Kcs 客户端用证书中提到的方式加密Seed钥匙 并用创建的Kcs钥匙加密hash1
 4. S --> C: {Hash2}_Kcs
 
 Hash计算的方式为：前面的所有消息都被hash并被Kcs加密以保证完整性
 
-- Hash1 = #(N_c, N_s, E_s(K_seed))
-- Hash2 = #(N_c, N_s, E_s(K_seed), {Hash1}_Kcs)
+- Hash1 = #(N_c, N_s, E_s(K_seed)) Hash1是两个Nonce和加密K种子的哈希值，用于验证消息是否被篡改过。
+- Hash2 = #(N_c, N_s, E_s(K_seed), {Hash1}_Kcs) Hash2同理，但是再加上Hash1。
 
-Kcs is a session key based on N_c, N_s, K_seed.
+Kcs is a session key based on N_c, N_s, K_seed. 
 
 ## 1.5 TLS-DHE
 
-A variant uses Diffie-Hellman for *forward secrecy*
+A variant uses Diffie-Hellman for *forward secrecy* TLS配合DH来达成前向保密。
 
 i.e. if someone gets the server's key later, they can't go back and break a recording of the traffic.
 
-1. C --> S: N_c
-2. S --> C: N_s, g^x, Cert_s, Sign_s(#(N_c, N_s, g^x)) 此处的签名只是前面所有内容的hash 加上服务器的签名
-3. C --> S: g^y, {#(All previous messages)}_Kcs
-4. S --> C: {#(All previous messages)}_Kcs
+在下面例子中，由于g<sup>x</sup>和g<sup>y</sup>是随机的，所以就是知道私钥也没有办法求出g<sup>xy</sup>。由于计算Session key的其中一个参数缺失，因此无法得到Session Key，也就达成了前向保密。
+
+1. C --> S: N_c 客户端发出Nonce
+2. S --> C: N_s, g^x, Cert_s, Sign_s(#(N_c, N_s, g^x)) 对前面所有内容进行签名，证明自己是服务器并防止内容被篡改
+3. C --> S: g^y, {#(All previous messages)}_Kcs 客户端发送g^y并通过得到的g^x来计算g^xy和session key
+4. S --> C: {#(All previous messages)}_Kcs 同上。
 
 Kcs is a session key based on N_c, N_s, g^(xy)
 
-## 1.6 Cipher Suites
+## 1.6 Cipher Suites 加密套件
 
-Cipher Suites with encryption and authentication:
+Cipher Suites with encryption and authentication: 带加密和认证的
 
 ```
 SSL_RSA_WITH_3DES_EDE_CBC_SHA
@@ -94,14 +103,14 @@ TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA
 ...
 ```
 
-Cipher suites with just authentication:
+Cipher suites with just authentication: 只带认证的
 
 ```
 SSL_RSA_WITH_NULL_MD5
 SSL_RSA_WITH_NULL_SHA
 ```
 
-Cipher suites with just encryption:
+Cipher suites with just encryption: 只带加密的
 
 ```
 SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA
@@ -129,7 +138,19 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA
 
 ## 1.7 Cipher Suites Handshake
 
+**TLS 1.3 握手** 用于在客户端和服务器之间建立安全连接并进行加密通讯。
+
 ![cshandshake](cshandshake.png)
+
+1. 客户端Hello：客户端向服务器发送<u>ClientHello消息</u>，<u>包含支持的TLS版本号、Cipher suites列表</u>和随机数等信息。
+2. 服务器Hello：服务器向客户端发送<u>ServerHello消息</u>，<u>选择TLS版本、Cipher suite</u>和生成随机数。服务器还可能会发送服务器证书，用于身份验证。
+3. 密钥交换：如果服务器要求客户端进行密钥交换，服务器会发送密钥交换消息，包含服务器的公钥或者临时密钥。客户端使用服务器的公钥或临时密钥来生成共享密钥。
+4. 证书验证：如果服务器发送了证书，客户端会验证证书的有效性，包括检查证书的签名和有效期等。
+5. 客户端密钥交换：客户端生成自己的密钥交换消息，包含客户端的公钥或临时密钥。
+6. 完成消息：客户端发送Finished消息，其中包含握手消息的哈希值，用于验证握手过程的完整性。
+7. 服务器完成：服务器也发送Finished消息，用于验证握手过程的完整性。
+
+> 客户端在第一次握手时发送"Key Share"扩展。Key Share扩展包含了客户端生成的Diffie-Hellman公钥，用于密钥交换。这样，客户端和服务器可以基于这些公钥协商出一个共享的预主密钥，用于后续的密钥派生和加密通信的建立。
 
 ## 1.8 Weakness in TLS
 
@@ -209,12 +230,18 @@ A programming error in OpenSSL.
 ## 1.9 TLS 1.3
 
 - Newest standard, ratified August 2018 最新标准
-- Remove obsolete cryptographic protocols 移除旧版的加密协议
-- Simplified handshake --> efficiency gain 简化握手
-- Forward secrecy mandatory 强制正向加密
-- Intercepting TLS connections now only possible as active attacker performing MITM attack
 
-# 2. Tor
+- Remove obsolete cryptographic protocols 移除旧版的加密协议
+
+- Simplified handshake --> efficiency gain 简化握手
+
+- Forward secrecy mandatory 强制正向加密
+
+- Intercepting TLS connections now only possible as active attacker performing MITM attack 
+
+  现在只有作为主动攻击者执行中间人攻击，才有可能拦截TLS连接。
+
+# 2. Tor 洋葱路由
 
 - Anonymity on the internet
 - The Tor Protocol
@@ -227,13 +254,15 @@ A programming error in OpenSSL.
 
 ## 2.2 VPN for Anonymity
 
-To get some anonymity, you can route all your traffix via the VPN.
+To get some anonymity, you can route all your traffic via the VPN.
 
-- Server thinks you are the VPN provider
-- ISP only sees the connection to the VPN
+- Server thinks you are the VPN provider 你访问的网站会将你识别为你所使用的VPN的提供方。
+- ISP only sees the connection to the VPN 互联网服务提供商只能看到你和VPN的连接，这意味着你的网络活动对于ISP来说是不可见的，包括你访问的特定网站或使用的应用程序。
 - A global observer can probably link your connections.
 
 There is **no anonymity** to the VPN provider.
+
+> ISP指互联网服务提供商Internet service provider。
 
 ___
 
@@ -280,3 +309,27 @@ What information does the **Website** provider have about you?
 - 每个Proxy的公钥是已知的。
 - 第一个节点Node可见源IP，最后一个节点Node可见目的地IP。
 - 用户选择三个Proxies (Entry, middle, exit nodes) 就可以匿名化，只要他们不全部 corrupt.
+
+## 2.5 Hidden server
+
+Tor hidden servers hide the server from you.
+
+这些步骤描述了在 Tor 匿名网络中使用隐藏服务（hidden service）的过程，下面是对每个步骤的解释：
+
+1. Bob选择一些引入点（introduction points）并与它们建立了一些 Tor **路径**（circuits）。
+
+   **引入点**是连接隐藏服务和用户之间的中介节点。
+
+2. Bob将他的隐藏服务（xyz.onion）在数据库中进行广告发布。这样，其他用户可以得知这个隐藏服务的存在。
+
+3. Alice听说了 xyz.onion 的存在，并从数据库请求更多信息。
+
+   她还设置了一个**会面点**（rendezvous point），尽管她也可以在此之前设置好。
+
+4. Alice给Bob写一条消息（使用公钥加密），消息中包含了会面点和一个一次性密钥，然后请求一个引入点将消息交付给Bob。
+
+5. Bob连接到Alice的会面点，并提供给她一次性密钥。
+
+6. Bob和Alice随后可以像正常使用 Tor 路径一样进行通信，他们的通信将通过 Tor 网络进行匿名传输。
+
+这些步骤允许隐藏服务提供者（Bob）和用户（Alice）在 Tor 网络上建立匿名的连接。隐藏服务通过使用引入点和会面点来隐藏服务器的真实位置，并使用公钥加密来保护通信的隐私。这样，用户可以匿名地访问隐藏服务，同时隐藏服务提供者的身份和位置得到保护。
