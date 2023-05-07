@@ -140,7 +140,11 @@ Second problem can be fixed by not reusing keys
 ## 3.1 Webserver 101
 
 - Command to check open ports: `nmap localhost`
+
 - Webserver on the VM is apache (very common)
+
+  > Apache 是一个广泛使用的开源 Web 服务器软件。
+
 - Database server on the VM is mysql (very common)
 
 - Standard files in `var/www/html`
@@ -149,6 +153,8 @@ Second problem can be fixed by not reusing keys
   cd /var/www/html
   ls -la
   ```
+
+  > `/var/www/html` 是一个常见的目录路径，通常用于存放 Web 服务器（如 Apache）的默认文档根目录。在许多 Linux 系统中，特别是基于 Debian 或 Ubuntu 的系统，该目录用于存放 Web 服务器默认提供的网页文件。
 
 - Have small demo website `http://vm-ics:demo/index.html`
 
@@ -178,6 +184,8 @@ Second problem can be fixed by not reusing keys
 
 </body>
 ```
+
+> php是一种服务器端脚本语言，用于开发动态网页和Web应用程序。
 
 ## 3.3 Javascript 101
 
