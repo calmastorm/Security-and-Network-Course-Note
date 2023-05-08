@@ -1,6 +1,6 @@
 # 1. Attacks against websites
 
-We will discuss attacks on websites and their prevention
+We will discuss attacks on websites and their prevention 针对网站的攻击
 
 - Authentication failure
 - SQL injection
@@ -12,7 +12,7 @@ Two main sources of vulnerabilities:
 - Input validation
 - Application logic
 
-## 1.1 Computer Misuse Act
+## 1.1 Computer Misuse Act 计算机滥用法案
 
 - Unauthorised access to computing material
 - Unauthorised access with intent to commit
@@ -32,18 +32,24 @@ HTTP website:
 
 If I type in `x@y.com` in the text box, then I will go to `http://site.com/index.jsp?email=x@y.com`
 
+> 调用了GET函数，把`input text`中输入的邮箱地址用下面的代码存入了数据库。
+
 PhP page reads and processes:
 
 ```html
 <?php
 $email=$_GET["emailAddress"];
-mysql_query("INSERT INtO emailsTable
+mysql_query("INSERT INTO emailsTable
 								VALUE(\'".$email. "\')");
 ?>
 <b>Your e-mail has been added</b>
 ```
 
+> GET函数把邮箱从`input text`中取出来，然后放入SQL的插入数据指令中。
+
 ## 1.3 Authenticating users after log in
+
+> 登录后对用户进行身份验证，是指在用户成功登录后，对其身份进行验证的过程。在用户提供正确的用户名和密码进行登录后，系统需要验证这些凭据的有效性，以确保用户是合法的并具有访问权限。
 
 - IP address-based
   - NAT may cause several users to share the same IP (NAT 网络地址转换)
@@ -59,27 +65,39 @@ mysql_query("INSERT INtO emailsTable
 
 ## 1.4 Cookies
 
+> 检查Cookies是最常用的登录后对用户进行身份验证的方法之一。
+
 - Cookies let server store a string on the client. Based on the server name.
-  - HTTP réponse: Set-Cookie: adds a cookie
+  - HTTP response: Set-Cookie: adds a cookie
   - HTTP header: Cookie: gives a "cookie"
+  
+  > 服务器可以通过在HTTP响应中的Set-Cookie字段添加Cookie来将其发送给客户端。
+  >
+  > 客户端在后续的HTTP请求中可以通过在HTTP头部的Cookie字段中包含Cookie来发送给服务器。
+  >
+  > 这样就可以达到下面的效果
 - This can be used to
   - Identify the user (cookie given out after login)
   - Store user name, preferences etc.
   - Track the user: time of last visit, etc.
+  
+  > 根据cookie识别出用户，储存用户名和偏好，跟踪用户（比如最后登录时间，最后登录IP等等）
 
 ## 1.5 Simple authentication scheme
 
 - The Web Application:
 
-  - Verifies the credentials, e.g., against database
+  - Verifies the credentials, e.g., against database <u>照着数据库验证</u>
 
-  - Generate a cookie which is sent back to the user
+  - Generate a cookie which is sent back to the user <u>生成一个cookie发送给用户</u>
 
-    Set-Cookie: auth=secret
+    `Set-Cookie: auth=secret` <u>在HTTP响应头部：`auth`是Cookie的名称，`secret`是Cookie的值。</u>
 
 - When browser contacts the web site again, it will include the session authenticator
 
-  Cookie: auth=secret
+  `Cookie: auth=secret`
+
+> 简而言之，Cookie的认证过程如下：网页应用要做的事情就是当用户登录时，对密码等信息进行验证，如果正确，就生成一个Cookie并在HTTP响应头部中返回给用户，用户下次再次使用该网页时，就会携带该Cookie。
 
 ## 1.6 Fixed cookies
 
@@ -87,6 +105,8 @@ mysql_query("INSERT INtO emailsTable
   - Set cookie the first time browser connects.
   - Every page looks up cookie in database to get session state.
 - PhP does this automatically: session cookies and `start_session()`
+
+> 通常情况下，Cookie的值可以根据需要进行动态生成，例如根据用户登录状态、会话标识符或其他变量生成不同的值。但是，当使用固定Cookie时，无论何时设置Cookie，它的值都保持不变。
 
 ## 1.7 But what can go wrong?
 
@@ -103,13 +123,13 @@ mysql_query("INSERT INtO emailsTable
 
 > OWASP 是一个开源组织，致力于改善Web应用程序的安全性。该组织通过提供安全性建议、工具和技术来提高Web应用程序的安全性，包括开发指南、测试方法、漏洞分类、漏洞修复等方面。
 
-## 1.8 Eavesdropping 偷听
+## 1.8 Eavesdropping 窃听
 
-If the connection is not encrypted, it is possible to eavesdrop, by
+If the connection is not encrypted, it is possible to eavesdrop, by <u>不加密就可能会被窃听</u>
 
-- ISP,
-- anyone on the route,
-- anyone on your local network, e.g. using the same wi-fi.
+- ISP, <u>互联网服务提供方</u>
+- anyone on the route, <u>该路由上的任何人</u>
+- anyone on your local network, e.g. using the same wi-fi. <u>局域网上的任何人</u>
 
 ## 1.9 Steal the Cookie
 
@@ -122,38 +142,37 @@ If the connection is not encrypted, it is possible to eavesdrop, by
 >
 > Cookie由两部分组成：名称和值。网站可以使用多个Cookie来存储不同的信息，例如，在一个购物网站上，可能会有一个Cookie存储您的购物车内容，另一个Cookie存储您的登录信息。网站也可以设置Cookie的过期时间，以指定Cookie应在多长时间后被删除。一些Cookie还可以设置为仅在使用安全连接（HTTPS）时传输，以提高安全性。
 
-## 1.10 Countermeasures
+## 1.10 Countermeasures 抵御Cookie偷窃
 
 - Use https (TLS) all the time.
 
-- Set the secure flag: cookie is sent only over secure connections:
+- Set the secure flag: cookie is sent only over secure connections: 仅在安全连接的情况下发送cookie
 
   ```java
-  Cookie secureCookie = 
-  	new Cookie("credential", c);
-  	secureCookie.setSecure(true);
+  Cookie secureCookie = new Cookie("credential", c);
+  secureCookie.setSecure(true);
   ```
 
 > 这段代码创建了一个名为"credential"的Cookie，并将其值设置为c。此外，该Cookie被设置为安全Cookie（secure cookie），意味着只有在使用安全协议（例如HTTPS）时，浏览器才会发送该Cookie到服务器。这提高了Cookie的安全性，防止它们被窃听或篡改。
 
-## 1.11 Broken Authentication
+## 1.11 Broken Authentication 有缺陷的认证
 
 Many web developers implement their own log in systems. Often broken, e.g.
 
-- No session time outs.
-- Passwords not hashed.
+- No session time outs. 会话密钥超时指的是安全通信中使用的会话密钥的有限时间限制。
+- Passwords not hashed. 密码没用哈希打碎。
 
-## 1.12 Sensitive Data Exposure
+## 1.12 Sensitive Data Exposure 敏感信息暴露
 
-- Sensitive data transmitted in clear text
+- Sensitive data transmitted in clear text <u>明文传输</u>
 
   (e.g. use of http instead of https)
 
-- Sensitive data stored in clear text
+- Sensitive data stored in clear text <u>明文储存</u>
 
   (e.g. passwords not hashed in database, credit card numbers not encrypted in database)
 
-- Cookie stealing because https connection turns to http
+- Cookie stealing because https connection turns to http <u>降级攻击或网站安全性不够，https降级为http</u>
 
 ## 1.13 SQL Injection Attacks
 
@@ -202,7 +221,7 @@ SELECT * FROM items WHERE (item='' OR '1'='1') -- ')
 
 The best vulnerabilities will print the result of the SQL query.
 
-- The lets you explore the whole database
+- This lets you explore the whole database
 
 - Information schema table can tell you the names of all other tables
 
@@ -217,14 +236,14 @@ Blind SQL attacks do not print the results:
 - Run commands on database, e.g. add a password, delete tables
 - Copy data (e.g. password) into a field you can read
 
-> Blind SQL Injection攻击是一种SQL注入攻击类型，攻击者试图利用应用程序的漏洞来执行恶意的SQL查询，以获取敏感数据或执行未经授权的操作。与传统的SQL注入攻击不同的是，盲注攻击并不返回数据库信息，攻击者无法在响应中看到查询结果。攻击者必须通过不断地尝试和错误测试来确定数据的内容和结构，从而实现对数据库的恶意访问和控制。
+> Blind SQL Injection攻击是一种SQL注入攻击，攻击者试图利用应用程序的漏洞来执行恶意的SQL查询，以获取敏感数据或执行未经授权的操作。与传统的SQL注入攻击不同的是，盲注攻击并不返回数据库信息，攻击者无法在响应中看到查询结果。攻击者必须通过不断地尝试和错误测试来确定数据的内容和结构，从而实现对数据库的恶意访问和控制。
 
 ## 1.15 Stopping SQL Attacks
 
 checking /cleaning the input, e.g. in PHP:
 
 ```php
-mysqli_real_escape_string()
+mysqli_real_escape_string(connectDB, string)
 ```
 
 > `mysqli_real_escape_string()` 是 PHP 中用于将字符串转义为 SQL 语句安全字符串的函数，以避免 SQL 注入攻击。该函数需要两个参数：数据库连接和要转义的字符串。它将字符串中的所有特殊字符（如单引号、双引号和反斜杠）转义为它们的转义序列，并返回转义后的字符串。这样，将该函数返回的字符串插入 SQL 语句时，就不会破坏原始 SQL 语句的结构，从而避免 SQL 注入攻击。
@@ -281,13 +300,13 @@ Not just SQL injection, any command language can be injected, e.g. shell:
 
 > XSS（Cross-site scripting）攻击是一种常见的网络安全漏洞，攻击者利用该漏洞向目标网站注入恶意代码，使得用户在浏览器上执行该代码，导致攻击者能够获取用户的敏感信息（如 cookie、session ID等），或者通过恶意代码控制用户的浏览器，实现篡改网页内容、重定向到其他网站等攻击。XSS攻击通常分为反射型XSS、存储型XSS和DOM型XSS三种类型。
 
-### 1.17.1 Reflected XSS
+### 1.17.1 Reflected XSS 反射型XSS
 
 - The injected code is reflected off the web server
   - an error message,
   - search result,
   - Response includes some/all of the input sent to the server as part of the request
-- Only the user issuing the malicious request is affected
+- Only the user issuing the malicious request is affected 只有对被恶意修改的功能发出请求的用户会被影响。
 
 ```java
 String searchQuery =
@@ -305,8 +324,12 @@ searchQuery =
 ```
 
 > 这是一个可能导致XSS攻击的例子，因为输入的脚本代码被直接插入到HTML页面中，而没有进行过滤和转义处理。攻击者可以利用这种漏洞来在用户的浏览器中注入恶意代码，例如窃取用户的cookie或其他敏感信息，以及执行其他恶意操作。
+>
+> 上面的例子是一个简单的在页面中弹出`pwnd`字样的警告窗口。
+>
+> <u>简而言之，攻击者在网站里的输入栏里输入`<script>`相关的代码，让受害者在点击某链接或功能时触发恶意代码。该攻击往往会被用于窃取cookie或被用于跳转到其他的钓鱼网站。</u>
 
-### 1.17.2 Stored XSS
+### 1.17.2 Stored XSS 储存型XSS
 
 - The injected code is stored on the website and served to its visitors on all page views
   - User messages
@@ -328,8 +351,15 @@ postMsg =
 ## 1.18 Steal cookie example
 
 - JavaScript can access cookies and make remote connections.
+
+   JS本身可被用于获取cookie。
+
 - A XSS attack can be used to steal the cookie of anyone who looks at a page, and send the cookie to an attacker.
+
+  JS结合上面的XSS攻击就会被攻击者使用JS窃取cookie。
+
 - The attacker can then use this cookie to log in as the victim.
+  有cookie就可以以受害者身份登录网站，不需要密码。
 
 ## 1.19 XSS attacks: phishing
 
@@ -344,12 +374,22 @@ postMsg =
   	document.location = "http://evil.com";
   </script>
   ```
+  
+  > 这是一个XSS链接跳转到钓鱼网站的例子，受害人被骗到XSS链接的钓鱼网站后仍然以为这是官方网站，因为链接出自官方网站（但实际上被XSS利用JS伪造），输入自己的保密内容，被直接发送至攻击者手中。
 
 ## 1.20 XSS attacks: run exploits
 
 - The attacker injects a script that launches a number of exploits against the user's browser or its plugins
+
+  攻击者针对受害者的浏览器或其插件注入了一些exploit。
+
 - If the exploits are successful, malware is installed on the victim's machine without any user intervention
+
+  如果exploits成功的话，恶意软件就能被成功安装，而且没有干涉。
+
 - Often, the victims machine becomes part of a botnet
+
+  然后受害者的电脑就会变成僵尸网络，算力或功能会被攻击者轻易调用以为自己服务。
 
 > XSS attacks: run exploits 意思是在利用 XSS 漏洞进行攻击，运行攻击代码。攻击者利用 XSS 漏洞可以向页面注入恶意代码，当其他用户浏览该页面时，这些代码会在他们的浏览器中执行，从而导致恶意行为，比如窃取用户的信息、登录凭证等，或者直接在用户的浏览器中执行攻击者想要的操作。因此，防止 XSS 攻击非常重要。
 
@@ -535,7 +575,9 @@ If a new security patch comes out has it been applied?
 - A patch might require you to bring down the site and so lose money.
 - Or it might even break your website.
 
-Is it worth applying the patch?
+Is it worth applying the patch? 
+
+**Yes, you can try the patch on a branch to see if it works, then apply it to the old code if it actually works, there is redundency anyway.**
 
 ## 1.33 Insufficient Logging and Monitoring
 
