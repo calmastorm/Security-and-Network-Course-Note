@@ -403,18 +403,22 @@ postMsg =
 - Sanitisation is attack-dependent, e.g. JavaScript vs. SQL
 
 > Sanitisation是指对输入的数据进行过滤和清理，以去除可能会导致注入攻击的字符或语句。
+>
+> 净化是<u>基于内容变化的</u>，对于JS的净化和SQL会不一样。同样地，净化过程的需要<u>取决于具体的攻击类型</u>。不同类型的攻击（如JavaScript注入、SQL注入等）可能需要不同的净化策略和规则来防止对应的攻击。
 
 ## 1.22 Spot the problem (1)
 
 ```PHP
 clean = preg_replace("#<script(.*?)>(.*?)</script(.*?)>#i"
-                    "SCRIPT BLOCKED", $value);
+                     "SCRIPT BLOCKED", $value);
 echo $clean;
 ```
 
 - Problem: over-restrictive sanitization: browsers accept malformed input!
 - Attack string: `<script>malicious code<`
 - Implementation != Standard
+
+> `#<script(.*?)>(.*?)</script(.*?)>#i`是一个正则表达式模式，用于匹配`<script>...</script>`标签。其中`.*?`表示非贪婪模式，用于匹配标签之间的任意字符，`#i`表示不区分大小写。
 
 ## 1.23 Spot the problem (2) Real Twitter bug
 
@@ -443,6 +447,8 @@ echo $clean;
 > 这是一个XSS攻击的例子，攻击者利用Twitter的旧sanitisation算法中一个漏洞，通过在推特文本中注入JavaScript代码来进行攻击。在这个例子中，攻击者在URL中嵌入了一个JavaScript代码，该代码在用户将鼠标悬停在链接上时触发，利用了JavaScript的onmouseover事件。该代码使用jQuery库中的getScript()函数来加载远程脚本，这里是一个短网址（is.gd/f19A7），可能会包含恶意代码。因为旧sanitisation算法只过滤了`<script>`标签而没有过滤双引号，所以攻击者成功地将这个恶意代码注入了推特文本中，并在用户鼠标悬停时触发。
 
 ## 1.24 Real-world XSS: From bug to worm
+
+- 此处继续上面的例子
 
 - Anyone putting mouse over such a twitter feed will run JavaScript that puts a similar message in their own feed.
 
@@ -492,22 +498,32 @@ Not a catch-all solution!
 - Does not work:
   - Attacker cannot spoof the value of the Referer header in the users browser (but the user can).
   - Legitimate requests may be stripped of their Referer header
-    - Proxies
-    - Web application firewalls
+    - Proxies 代理，比如VPN会导致该检查的方法失效。
+    - Web application firewalls 网络应用防火墙。
+
+> 具体操作是，服务器在接收到请求时，检查请求中的 Referer 头的值。如果该值与当前请求所期望的来源页面匹配，可以认为请求是合法的。如果不匹配，就可能是一个 CSRF 攻击，服务器可以拒绝该请求或采取其他安全措施。
+>
+> 1. 攻击者无法伪造用户浏览器中 Referer 头的值，但用户可以篡改该值。因此，用户可能导致 Referer 头的值不准确。
+> 2. 一些代理服务器或 Web 应用程序防火墙可能会剥离或修改请求中的 Referer 头，导致服务器无法获取正确的来源信息。
+> 3. Referer 头并不是所有请求都会包含的，例如在 HTTPS 请求中，默认情况下，浏览器可能不会发送 Referer 头，或者用户在浏览器中禁用了该功能。
 
 ### 1.26.2 Solutions to CSRF (2)
 
 - Every time a form is served, add an additional parameter with a secret value (token) and check that it is valid upon submission.
 - If the attacker can guess the token value, then no protection.
 
+> 具体操作是，服务器在生成表单时会将令牌值token嵌入其中，并将该令牌与用户会话关联。当用户提交表单时，服务器会验证请求中的令牌值token是否与会话中的值匹配。如果匹配成功，服务器可以认为请求是合法的，否则可能是一个 CSRF 攻击，服务器可以拒绝该请求或采取其他安全措施。
+
 ### 1.26.3 Solutions to CSRF (3)
 
 - Every time a form is served, add an additional parameter with a secret value (token) and check that it is valid upon submission.
 - If the token is not regenerated each time a form is served, the application may be vulnerable to replay attacks (nonce).
 
+> 和上面（2）的内容类似，只不过该token应该是每次提交表格都生成，这样能起到类似Nonce的效果。如果不是每次都新生成的话，容易被重放攻击。
+
 ## 1.27 XML External Entities (XXE)
 
-- XML is very common in industry
+- XML is very common in industry XML是一种用于存储和传输数据的标记语言，具有良好的可扩展性和可读性。
 
 - XML processors resolve an "external entity" during processing:
 
@@ -521,6 +537,16 @@ Not a catch-all solution!
   ```
 
 > XML external entities (XXE) 是指 XML 处理器在解析包含外部实体引用的 XML 文档时，可以引用或访问计算机系统上的外部资源。这些外部资源可能是文件、端口或其他协议，如 HTTP 或 FTP。
+>
+> 具体解释如下：
+>
+> - `<?xml version="1.0" encoding="ISO-8859-1"?>`: 声明 XML 版本和编码。
+> - `<!DOCTYPE foo [...]>`: 定义一个名为 "foo" 的文档类型定义（DTD），其中包含实体声明。
+> - `<!ELEMENT foo ANY >`: 声明 "foo" 元素可以包含任何内容。
+> - `<!ENTITY xxe SYSTM "file:///etc/passwd" >`: 声明一个实体 "xxe"，其值为 `"file:///etc/passwd"`，表示读取系统文件 `/etc/passwd` 的路径。
+> - `<foo>&xxe;</foo>`: 使用实体引用将实体 "xxe" 插入到 "foo" 元素中。
+>
+> 当这段代码被解析时，XML 解析器会展开实体引用 `&xxe;`，并将其替换为实体 "xxe" 的值，即 `"file:///etc/passwd"`。这样，攻击者可以通过读取系统文件来获取敏感信息。
 
 ## 1.28 Broken Access Control
 
@@ -534,11 +560,13 @@ What if the attacker tries:
 
 `http://myWebShop.com/index.php?account=tpc&action=delete`
 
+> 在上述示例中，攻击者试图通过构造`action=delete`的查询字符串，来触发执行删除操作，即删除指定的账户。这样的恶意查询字符串可能会导致未经授权的操作被执行，破坏了系统的安全性。
+
 ## 1.29 Path Traversal
 
 The user can type anything they want into the URL bar, or even form the request by hand.
 
-> 手动输入请求
+> 手动输入请求，想去哪里就去哪里。
 
 `http://nameOfHost/../../../etc/shadow`
 
@@ -550,15 +578,15 @@ If the webserve is running with root permission this will give me the password f
 - Best practice: make a specific user account for the webserver
 - Only give that account access to public files
 
-> 限制权限，只有特定账号才能访问 webserver。
+> 解决方法也很直接：限制权限，只有特定账号才能访问 webserver。
 
 ## 1.30 Security Misconfiguration
 
-make sure your security setting don't give an attacker an advantage, e.g.
+Make sure your security setting don't give an attacker an advantage, e.g.
 
-- Error messages: should not be public.
-- Directory listings: It should not be possible to see the files in a directory.
-- Admin panels should not be publically accessible.
+- Error messages: should not be public. 不要把网站报错信息公开
+- Directory listings: It should not be possible to see the files in a directory. 不要允许遍历文件
+- Admin panels should not be publically accessible. 不要开放管理员控制面板
 
 ## 1.31 Insecure Deserialisation
 
@@ -567,6 +595,10 @@ make sure your security setting don't give an attacker an advantage, e.g.
 - Remote code execution possible
 
 > Insecure deserialization是一种安全漏洞，指的是对于一个应用程序来说，它对序列化的输入数据的信任程度过高，导致攻击者可以注入恶意数据，导致应用程序的行为不受控制。
+>
+> 上文提到的end user指最终用户：使用应用程序或系统的最终用户或终端用户。最终用户是指与应用程序进行交互、使用其功能和服务的个人或实体。他们可能是网站的访问者、移动应用程序的用户、软件的使用者或系统的终端用户。
+>
+> 在安全领域中，最终用户通常被视为潜在的攻击目标或攻击者可能利用的风险因素。
 
 ## 1.32 Using Components with known Vulnerabilities
 
@@ -576,6 +608,8 @@ If a new security patch comes out has it been applied?
 - Or it might even break your website.
 
 Is it worth applying the patch? 
+
+是否要打补丁？打：需要网站下线，有经济和时间成本。不打：可能导致未来受到攻击。
 
 **Yes, you can try the patch on a branch to see if it works, then apply it to the old code if it actually works, there is redundency anyway.**
 
