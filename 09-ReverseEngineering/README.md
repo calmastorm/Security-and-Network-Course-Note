@@ -33,11 +33,16 @@ Outline
 - Analyse legacy code 分析旧代码
 - Security audit 安全审计
 
-## 1.4 Binaries
+## 1.4 Binaries 二进制文件
 
-- Binaries are written in assembly 汇编语言
+- Binaries are written in assembly
+
+  二进制文件由汇编语言编写：实际上汇编语言先写，然后被转化为二进制文件，这些文件可以被机器直接执行。
+
 - Much lower level than Java byte code
+
 - Assembly compiled for one type of machine won't run on another 编译完成的汇编语言无法在其他机器上运行
+
 - But the same technique apply, even though a C program has to generate a different binary for each operating system that's running on.
 
 > C program
@@ -58,8 +63,8 @@ Outline
 
 ## 1.4 IDA Pro and Ghidra
 
-- IDA pro is an Interactive DisAssembler. 
-- It helps human understand binaries.
+- IDA pro is an Interactive DisAssembler. IDA pro用于反汇编，把二进制代码变为可读的汇编命令
+- It helps human understand binaries. 帮助人们理解二进制
 - This is the standard tool for malware binary analysis, security analysis of firmware and reverse engineering.
 - NSA released Ghidra - very powerful as well. 美国国安局发布的开源工具，官网可下载。
 
@@ -71,12 +76,12 @@ POP - read and remove from top of stack
 CALL - execute a function
 JMP - jump to some code (like writing to EIP)
 RET, RETN, RETF - end a function and restart calling code
-MOV - move values between registers (MOV r1, r2 = PUSH r2 POP r1)
+MOV - move values between registers (MOV r1, r2 = PUSH r2 then POP r1) MOV dest, sour
 ```
 
 ## 1.6 x86
 
-- The x86 architecture uses memory and a number of registers.
+- The x86 architecture uses memory and a number of registers. <u>X86架构使用内存以及一些寄存器</u>
 - The memory include code and the stack
 
 ![](x86.png)
@@ -88,7 +93,7 @@ MOV - move values between registers (MOV r1, r2 = PUSH r2 POP r1)
 Data is moved to register, operation is called, result stored in memory or register.
 
 ```x86
-mov eax, [esp+1Ch]
+mov eax, [esp+1Ch] 本质上是复制而不是移动
 add [esp+18h], eax
 ```
 
@@ -96,16 +101,18 @@ add [esp+18h], eax
 - It is added to the value at `[esp+18h]`
 - The result is stored at `[esp+18h]`
 
+> 上面的汇编语言指令中，`mov eax, [esp+1Ch]`: 这条指令将位于 `[esp+1Ch]` 内存地址处的值复制到 `eax` 寄存器中。`[esp+1Ch]` 表示栈顶指针加上偏移量 `1Ch` 的内存地址。`add [esp+18h], eax`: 这条指令将 `eax` 寄存器中的值加到位于 `[esp+18h]` 内存地址处的值上，并将结果存回 `[esp+18h]` 内存地址中。`[esp+18h]` 表示栈顶指针加上偏移量 `18h` 的内存地址。
+
 ## 1.8 Flags
 
 After an arithmetic operation flags are set
 
 - `ZF`: Zero flag
-  - Set to 1 if result is 0
+  - Set to 1 if result is 0 <u>如果结果为0那么ZF为1</u>
 - `SF`: Sign flag
-  - Set to 1 if result is negative
+  - Set to 1 if result is negative <u>如果结果为负数那么SF为1</u>
 - `OF`: Overflow flag
-  - Set to 1 if operation overflowed
+  - Set to 1 if operation overflowed <u>如果操作溢出那么OF为1：溢出指的是在有符号数运算中，结果超出了所能表示的范围。例如，对于带符号的8位整数，范围是从 -128 到 127。如果执行加法或减法操作后，结果超出了这个范围，就会发生溢出。</u>
 
 > 这些标志位存在的主要目的是为了帮助处理器和程序员判断不同运算的结果，从而进行条件分支和异常处理等操作。这些标志位的正确理解和使用对于处理器的程序员以及反汇编器、调试器等工具的使用都非常重要。
 
@@ -146,6 +153,9 @@ jle short loc_80483DF
 
 - Otherwise it continues to the next command
 
+> 1. `cmp dword ptr [esp+1Ch], 3`: 这条指令比较位于 `[esp+1Ch]` 地址处的双字（32位）值和数字3。`cmp` 是比较指令，用于比较两个操作数的值。`dword ptr` 表示操作数是一个双字（32位）的内存位置。
+> 2. `jle short loc_80483DF`: 这条指令是一个条件跳转指令，根据上一条 `cmp` 指令的比较结果来确定是否进行跳转。`jle` 表示 "jump if less than or equal"，即如果上一次比较结果是小于等于，则进行跳转。`short` 表示跳转目标是一个相对短距离的偏移量。`loc_80483DF` 是一个跳转目标的标签或地址。
+
 ## 1.12 Common pattern 3 (?)
 
 - Data is loaded onto the stack
@@ -163,7 +173,7 @@ call _strncmp
 - String compare is called on these.
 - The result will be returned in the `eax` register
 
-> - 第一行：将eax中的值存储到地址为esp+4的内存中，即将eax的值作为s2字符串的指针。
+> - 第一行：将eax中的值存储到地址为esp+4的内存中，即将eax的值作为s2字符串的头指针。
 > - 第二行：将s1字符串的地址存储到esp地址指向的内存中，即将s1的地址作为_strncmp函数的第一个参数。
 > - 第三行：调用_strncmp函数进行字符串比较，该函数的返回值存储在eax中。
 
@@ -212,8 +222,10 @@ call _strncmp
 Which of the following statements about reverse engineering is true?
 
 Recap of most important terms:
-**Disassembler:** transforming binary code into human readable assembly instructions
-**Decompiler:** transforming binary code binary code into a higher-level language
+
+**Disassembler:** transforming binary code into human readable assembly instructions 反汇编程序：二进制代码 -> 可读的汇编命令
+
+**Decompiler:** transforming binary code binary code into a higher-level language 解码器：二进制代码 -> 高等编程语言
 
 ❌A disassembler is converting a binary file into hexadecimal codes.
 
