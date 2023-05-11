@@ -113,7 +113,9 @@ CALL \<function\>
 - The instruction pointer is stored on the stack,
 - Then, I can write to the stack. 
 
-> 由于`EIP`会被储存在Stack里，因此可以根据其位置直接修改stack。
+> 由于`EIP`会被储存在Stack里，因此攻击者可以根据其位置直接修改stack。
+>
+> `EIP`会变化的原因是，假设执行到text area的第五行时，调用了一个函数，而这个函数来自text area的第60行，那么就要把第五行的地址放入stack中作为旧EIP，然后EIP再跳到第60行的地址来执行函数。这么做的目的是为了保证执行完函数后还能回到原来的text area位置来继续执行剩下的内容。
 
 **Example 1**
 
@@ -149,7 +151,7 @@ getname() {
 
 1. Runs as before
 
-2. Attacker send a verlong message, ending with the address of some code that gives him a shell:
+2. Attacker send a very long message, ending with the address of some code that gives him a shell:
 
    `Hello World XXXX XXXX97F9`
 
@@ -205,9 +207,9 @@ The standard attack against the NX-bit is to reuse code from the executeable par
 
 > 简而言之，Return-to-libc 利用了在程序的动态链接库中存在的许多可执行的函数，如libc中的函数，而不是在栈上注入恶意代码。通过覆盖`EIP`来强制程序跳转到<u>已知的libc函数地址</u>，并且通过调用这些函数实现攻击。这种攻击方式避免了将代码注入到栈中，因此可以绕过 NX-bit 的保护机制。
 >
-> 这些已知的libc函数往往包含很多像”system“这样的命令，非常有效。
+> 这些已知的libc函数往往包含很多像”system“这样的命令，攻击非常有效。
 
-## 1.8 Address space layout randomization
+## 1.8 Address space layout randomization 随机布局
 
 - ASLR adds a random offset to the stack and code base each time the program runs.
 
@@ -233,6 +235,8 @@ The standard attack against the NX-bit is to reuse code from the executeable par
   使用容量为999000 bytes的`0x90`来占据2MB中前面的空间，最后一点空间执行shell code。
 
 - I then guess a return address and hope it is somewhere in the 2MB of NOPs.
+
+  只要return地址在这2MB中，由于这2MB全是NOP，就会自动划到后面紧跟的shell code。
 
 - If it is, the program slides down the NOPs to my shell code.
 
