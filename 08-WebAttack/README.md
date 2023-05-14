@@ -39,8 +39,7 @@ PhP page reads and processes:
 ```html
 <?php
 $email=$_GET["emailAddress"];
-mysql_query("INSERT INTO emailsTable
-								VALUE(\'".$email. "\')");
+mysql_query("INSERT INTO emailsTable VALUE(\'".$email. "\')");
 ?>
 <b>Your e-mail has been added</b>
 ```
@@ -261,8 +260,7 @@ Most language these days have "prepared" statements, e.g. PHP and MySQLi:
 
 ```php
 // prepare and bind
-$stmt = $conn->prepare
-  				("INSERT INTO People (firstname, lastname) VALUES (?, ?)");
+$stmt = $conn->prepare("INSERT INTO People (firstname, lastname) VALUES (?, ?)");
 $stmt->bind_param("ss", $firstname, $lastname);
 // set parameters and execute
 $firstname = "John";
@@ -270,7 +268,7 @@ $lastname = "Doe";
 $stmt->execute();
 ```
 
-> 这段 PHP 代码用于将数据插入到数据库中。它首先准备 SQL 语句，并使用占位符 (?) 代替变量部分。然后使用 `$stmt->bind_param()` 函数将变量绑定到准备的 SQL 语句中的占位符处。在这个例子中，`$firstname` 和 `$lastname` 分别绑定到 SQL 语句中的两个占位符（`?`）处，且它们都是字符串类型（"ss" 表示两个占位符都是字符串类型）。
+> 这段 PHP 代码用于将数据插入到数据库中。它首先准备 SQL 语句，并使用占位符 (?) 代替变量部分。然后使用 `$stmt->bind_param()` 函数将变量绑定到准备的 SQL 语句中的占位符处，`bind_param`可以确保字符在查询中被正确地转义。在这个例子中，`$firstname` 和 `$lastname` 分别绑定到 SQL 语句中的两个占位符（`?`）处，且它们都是字符串类型（"ss" 表示两个占位符都是字符串类型）。
 >
 > 接下来，代码将 `$firstname` 和 `$lastname` 变量设置为要插入的实际值。最后，使用 `$stmt->execute()` 函数执行预处理的 SQL 语句并将数据插入到数据库中。
 >
@@ -309,8 +307,7 @@ Not just SQL injection, any command language can be injected, e.g. shell:
 - Only the user issuing the malicious request is affected 只有对被恶意修改的功能发出请求的用户会被影响。
 
 ```java
-String searchQuery =
-  request.getParameter("searchQuery");
+String searchQuery = request.getParameter("searchQuery");
 ...
 PrintWriter out = response.getWriter();
 out.println("<h1>" + "Results for " + searchQuery + "</h1>");
@@ -319,8 +316,7 @@ out.println("<h1>" + "Results for " + searchQuery + "</h1>");
 User request:
 
 ```html
-searchQuery =
-	<script>alert("pwnd")</script>
+searchQuery = <script>alert("pwnd")</script>
 ```
 
 > 这是一个可能导致XSS攻击的例子，因为输入的脚本代码被直接插入到HTML页面中，而没有进行过滤和转义处理。攻击者可以利用这种漏洞来在用户的浏览器中注入恶意代码，例如窃取用户的cookie或其他敏感信息，以及执行其他恶意操作。
